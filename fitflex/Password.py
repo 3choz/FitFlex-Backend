@@ -37,12 +37,14 @@ class Password:
         # create Salt
         salt = ''.join(random.choices(string.ascii_uppercase +
                              string.digits, k=25))
-        print(salt)
         # create Hash
         passhash = hashlib.sha256((password+salt).encode("utf-8"))
-        print(passhash.hexdigest())
         DBAction("EXEC spPasswordInsert @Salt='"+ salt +"', @Hash='"+ passhash.hexdigest() + "'")
-        
+
+        tempstr = DBQuery("select passID from tblPassword where passSalt = '"+ salt +"' and passHash='"+ passhash.hexdigest() +"'")[0]
+        passid = int(tempstr[1:len(tempstr)-2])
+        return passid
+
     # Update Password. Password reset.
     def update(self, currentPassword, newPassword):
         print("tbd")

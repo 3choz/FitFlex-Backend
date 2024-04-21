@@ -1,42 +1,17 @@
 import os
 
-from flask import (Flask, jsonify, redirect, render_template, request,
-                   send_from_directory, url_for)
-from flask_cors import CORS
+from flask import (Flask, jsonify, render_template, request)
 
 from fitflex.Password import Password
+from fitflex.User import User
 
-app = Flask(__name__, template_folder= os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
-CORS(app) #Enable CORS for all routes
-#os.chdir("..")
-#template_dir = os.path.abspath()
-print("directory: " + os.getcwd())
-print(os.path.abspath("./templates"))
+app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
+
 @app.route('/')
 
 def index():
    print('Request for index page received')
    return render_template('index.html')
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-@app.route('/hello', methods=['POST'])
-def hello():
-   formEmail = request.form.get('email')
-   formPassword = request.form.get('password')
-   if formEmail:
-       attempt = Password()
-       if attempt.login(formEmail,formPassword) == True:
-           status = "True"
-       else:
-           status = "False"
-       return render_template('hello.html', status = status)
-   else:
-       print('Request for hello page received with no name or blank name -- redirecting')
-       return redirect(url_for('index'))
 
 # Use for testing the connection between the frontend and the backend   
 @app.route('/api/test', methods=['GET'])
@@ -44,3 +19,31 @@ def test_connection():
     serialized_items = {"message": "Hello", "connected_to_backend": True}
     return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
+@app.route('/api/CreateUser', methods=['POST'])
+def Create_User():
+
+
+    try:
+        userEmail = request.json['userEmail']
+        userPassword = request.json['userPassword'] # This needs to be updated as this is in cleartext. BAD
+        userFirstName = request.json['userFirstName']
+        userLastName = request.json['userLastName']
+        userDOB = request.json['userDOB']
+        userPhone = request.json['userPhone']
+        userSex = request.json['userSex']
+        passCreation = Password()
+        userPassID = passCreation.create(userPassword)
+        newUser = User(userEmail,userPassID,None,userFirstName,userLastName,userDOB,userPhone,userSex)
+
+        if newUser.create() == True:
+            serialized_items = {"User Created": True}
+        else:
+            serialized_items = {"User Created": False}
+
+    except Exception as e:
+        serialized_items = {"User Created": False,
+                            "Error Message":str(e)}
+
+
+
+    return jsonify(serialized_items) # Send as a JSON so the frontend can consume it

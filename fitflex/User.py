@@ -1,6 +1,6 @@
 # Class that defines the Password object. Object will match values of the table: tblUser
 
-from DBConnect import DBAction,DBQuery
+from fitflex.DBConnect import DBAction, DBQuery
 
 class User:
 
@@ -19,12 +19,15 @@ class User:
 
     # Create record in the database.
     def create(self):
-        print("tbd")
+        if(DBAction("EXEC spUserInsert @Email='"+ self.userEmail +"', @passID='"+str(self.passID)+"', @First='"+ self.userFirstName +"', @Last='"+self.userLastName+"', @DOB='"+self.userDOB+"', @Phone ='"+self.userPhone+"', @sex='"+ self.userSex + "'") == False):
+            DBAction("Delete from tblpassword where @passID='"+str(self.passID)+"'")
+            return False
+        return True
 
     # Update record in the database.
-    def update(self):
-        print("tbd")
+    def update(self, userFirstName, userLastName, userDOB, userPhone, userSex):
+        DBAction("EXEC spUserUpdate @Email='"+self.userEmail+"', @First='"+ userFirstName +"', @Last='" + userLastName+"', @DOB='" + userDOB+"', @Phone ='"+ userPhone+"', @sex='"+ userSex + "'")
 
     # Delete record in the database.
     def delete(self):
-        print("tbd")
+        DBAction("EXEC spUserDelete @Email='"+ self.userEmail +"'")

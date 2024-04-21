@@ -15,12 +15,19 @@ class Exercise:
 
     # Create record in the database.
     def create(self):
-        print("tbd")
+        DBAction("Exec spExerciseInsert @Name='"+self.exName+"', @Description='"+self.exDescription+"', @VideoLink='"+self.exVideoLink+"', @TrainerSex='"+self.exTrainerSex+"', @VideoLength='"+self.exVideoLength+"'")
+        tempid = DBQuery("select * from tblExercise where exName='"+ self.exName + "' and exDescription ='" + self.exDescription +"'")
+        self.exID = int(tempid[0])
 
     # Update record in the database.
-    def update(self):
-        print("tbd")
+    def update(self,exName, exDescription, exTrainerSex, exVideoLength, exVideoLink):
+        self.exName = exName
+        self.exDescription = exDescription
+        self.exTrainerSex = exTrainerSex
+        self.exVideoLength = exVideoLength
+        self.exVideoLink = exVideoLink
+        DBAction("Exec spExerciseUpdate @ID='" + self.exID + "', @Name='"+exName+"', @Description='"+exDescription+"', @VideoLink='"+exVideoLink+"', @TrainerSex='"+exTrainerSex+"', @VideoLength='"+exVideoLength+"'")
 
     # Delete record in the database.
     def delete(self):
-        print("tbd")
+        DBAction("Exec spExerciseDelete @ID='"+self.exID+"'")

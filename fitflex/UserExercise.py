@@ -15,12 +15,12 @@ class UserExercise:
 
     # Create record in the database.
     def create(self):
-        print("tbd")
+        DBAction("")
 
     # Update record in the database.
     def update(self):
-        print("tbd")
+        DBAction("")
 
     # Delete record in the database.
     def delete(self):
-        print("tbd")
+        DBAction("")
