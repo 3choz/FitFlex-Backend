@@ -1,6 +1,7 @@
 import os
 
 from flask import (Flask, jsonify, render_template, request)
+from flask_cors import CORS
 
 from fitflex.Password import Password
 from fitflex.User import User
@@ -8,6 +9,7 @@ from fitflex.Program import Program
 from fitflex.DBConnect import DBAction, DBQuery
 
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
+CORS(app) # Enable CORS for all routes
 
 @app.route('/')
 
