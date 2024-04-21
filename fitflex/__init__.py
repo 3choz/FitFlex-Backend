@@ -4,6 +4,8 @@ from flask import (Flask, jsonify, render_template, request)
 
 from fitflex.Password import Password
 from fitflex.User import User
+from fitflex.Program import Program
+from fitflex.DBConnect import DBAction, DBQuery
 
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
 
@@ -17,6 +19,17 @@ def index():
 @app.route('/api/test', methods=['GET'])
 def test_connection():
     serialized_items = {"message": "Hello", "connected_to_backend": True}
+    return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+
+@app.route('/api/getPrograms', methods=['GET'])
+def getPrograms():
+    mylist=DBQuery("EXEC spGetPrograms")
+    print(mylist)
+
+    for x in mylist:
+        print(x)
+
+    serialized_items = {"message": "Hello", "output": mylist}
     return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
 # API call for creating a user. This will be called under the create account page.

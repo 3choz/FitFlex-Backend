@@ -1,8 +1,8 @@
 # Class that defines the Program object. Object will match values of the table: tblProgram
 
-from DBConnect import DBAction,DBQuery
+from fitflex.DBConnect import DBAction,DBQuery
 
-class ProgramExercise:
+class Program:
 
     # Contructor
     def __init__(self, prgmName, prgmDescription):
