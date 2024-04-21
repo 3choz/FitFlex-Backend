@@ -4,8 +4,6 @@ from fitflex.DBConnect import DBAction, DBQuery
 
 class User:
 
-    def __init__(self):
-        pass
     # Contructor
     def __init__(self, userEmail, passID, prgmID, userFirstName, userLastName, userDOB, userPhone, userSex):
         self.userEmail = userEmail
@@ -25,9 +23,7 @@ class User:
         return True
 
     # Update record in the database.
-    def update(self, userFirstName, userLastName, userDOB, userPhone, userSex):
-        DBAction("EXEC spUserUpdate @Email='"+self.userEmail+"', @First='"+ userFirstName +"', @Last='" + userLastName+"', @DOB='" + userDOB+"', @Phone ='"+ userPhone+"', @sex='"+ userSex + "'")
-
-    # Delete record in the database.
-    def delete(self):
-        DBAction("EXEC spUserDelete @Email='"+ self.userEmail +"'")
+    def update(self, userEmail, userFirstName, userLastName, userDOB, userPhone, userSex):
+        if(DBAction("EXEC spUserUpdate @Email='"+userEmail+"', @First='"+ userFirstName +"', @Last='" + userLastName+"', @DOB='" + userDOB+"', @Phone ='"+ userPhone+"', @sex='"+ userSex + "'")== False):
+            return False
+        return True
