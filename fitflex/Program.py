@@ -15,7 +15,7 @@ class Program:
         DBAction("Exce spProgramInsert @Name='"+self.prgmName+"', @Description='"+self.prgmDescription+"', @Difficulty='"+self.prgmDifficulty+"'")
 
     # Update record in the database.
-    def update(self):
+    def update(self, prgmName, prgmDescription):
         self.prgmName = prgmName
         self.prgmDescription = prgmDescription
         DBAction("Exce spProgram @ID='"+self.prgmID+"', @Name='"+self.prgmName+"', @Description='"+self.prgmDescription+"', @Difficulty='"+self.prgmDifficulty+"'")
