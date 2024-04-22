@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import (Flask, jsonify, render_template, request)
 
@@ -15,22 +16,24 @@ def index():
    print('Request for index page received')
    return render_template('index.html')
 
-# Use for testing the connection between the frontend and the backend   
+# Used for testing the connection between the frontend and the backend   
 @app.route('/api/test', methods=['GET'])
 def test_connection():
     serialized_items = {"message": "Hello", "connected_to_backend": True}
     return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
+# Used for getting all Programs for program selection
 @app.route('/api/getPrograms', methods=['GET'])
 def getPrograms():
     mylist=DBQuery("EXEC spGetPrograms")
-    print(mylist)
-
+    finaloutput="["
     for x in mylist:
-        print(x)
-
+        program = x.split(", ")
+        finaloutput = finaloutput + '{"prgmID": ' + program[0][1:] + ', "prgmName": "' + program[1][1: len(program[1])-1] + '", "prgmDescription": "' + program[2][1: len(program[2])-1]  + '", "prgmDifficulty": "' + program[3][1: len(program[3])-2] +'"},'
+    finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+    #print(json.dumps(finaloutput))
     serialized_items = {"message": "Hello", "output": mylist}
-    return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+    return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it
 
 # API call for creating a user. This will be called under the create account page.
 @app.route('/api/CreateUser', methods=['POST'])
@@ -70,7 +73,6 @@ def Update_User():
         userSex = request.json['userSex']
         updateUser = User(None,None,None,None,None,None,None,None)
         
-
         if updateUser.update(userEmail,userFirstName,userLastName,userDOB,userPhone,userSex) == True:
             serialized_items = {"User Updated": True}
         else:
