@@ -8,15 +8,18 @@ class Program:
     def __init__(self, prgmName, prgmDescription):
         self.prgmName = prgmName
         self.prgmDescription = prgmDescription
+        
 
     # Create record in the database.
     def create(self):
-        DBAction("")
+        DBAction("Exce spProgramInsert @Name='"+self.prgmName+"', @Description='"+self.prgmDescription+"', @Difficulty='"+self.prgmDifficulty+"'")
 
     # Update record in the database.
     def update(self):
-        DBAction("")
+        self.prgmName = prgmName
+        self.prgmDescription = prgmDescription
+        DBAction("Exce spProgram @ID='"+self.prgmID+"', @Name='"+self.prgmName+"', @Description='"+self.prgmDescription+"', @Difficulty='"+self.prgmDifficulty+"'")
 
     # Delete record in the database.
     def delete(self):
-        DBAction("")
+        DBAction("Exec spProgramDelete @ID='"+self.prgmID+"'")

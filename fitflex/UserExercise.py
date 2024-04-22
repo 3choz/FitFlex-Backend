@@ -15,12 +15,15 @@ class UserExercise:
 
     # Create record in the database.
     def create(self):
-        DBAction("")
+        DBAction("Exce spUserExerciseInsert @exID='"+self.exID+"', @Email='"+self.userEmail+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")
 
     # Update record in the database.
-    def update(self):
-        DBAction("")
+    def update(self, ueDate, euType, ueAmount):
+        self.ueDate = ueDate
+        self.euType = euType
+        self.ueAmount = ueAmount
+        DBAction("Exce spUserExerciseUpdate @exID='"+self.ueID+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")
 
     # Delete record in the database.
     def delete(self):
-        DBAction("")
+        DBAction("Exec spExerciseDelete @ID='"+self.exID+"'")
