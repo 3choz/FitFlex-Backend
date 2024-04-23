@@ -1,4 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[spGetProgram]
-	@ID int
+	@Email varchar(255)
 AS
-	select * from tblProgram prgm where prgm.prgmID = @ID 
+	select p.prgmID,p.prgmName,p.prgmDescription,p.prgmDifficulty from tblProgram p
+	join tblUser u on p.prgmID = u.prgmID
+	where u.userEmail = @Email;

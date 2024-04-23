@@ -68,43 +68,73 @@ def createUser():
 # Used for getting all Programs for program selection
 @app.route('/api/getprograms', methods=['GET'])
 def getPrograms():
-    mylist=DBQuery("EXEC spGetPrograms")
+    mylist = DBQuery("EXEC spGetPrograms")
     finaloutput="["
     for x in mylist:
         program = x.split(", ")
         finaloutput = finaloutput + '{"prgmID": ' + program[0][1:] + ', "prgmName": "' + program[1][1: len(program[1])-1] + '", "prgmDescription": "' + program[2][1: len(program[2])-1]  + '", "prgmDifficulty": "' + program[3][1: len(program[3])-2] +'"},'
     finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
-    #print(json.dumps(finaloutput))
-    serialized_items = {"message": "Hello", "output": mylist}
+
     return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it
 
-# TODO - API Call for getting all Programs by difficulty for program selection
+# API Call for getting all Programs by difficulty for program selection
 # Stored Procedure Name: "[spGetProgramByDifficulty]"
-@app.route('/api/getprogramsbydifficulty', methods=['GET'])
+@app.route('/api/getprogramsbydifficulty', methods=['POST'])
 def getProgramsByDifficulty():
-    mylist=DBQuery("EXEC spGetProgramsByDifficulty")
-    finaloutput="["
-    for x in mylist:
-        program = x.split(", ")
-        finaloutput = finaloutput + '{"prgmID": ' + program[0][1:] + ', "prgmName": "' + program[1][1: len(program[1])-1] + '", "prgmDescription": "' + program[2][1: len(program[2])-1]  + '", "prgmDifficulty": "' + program[3][1: len(program[3])-2] +'"},'
-    finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
-    #print(json.dumps(finaloutput))
-    serialized_items = {"message": "Hello", "output": mylist}
-    return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+    prgmDifficulty = request.json['Difficulty']
 
-# TODO - API call for updating the user's program.
+    mylist = DBQuery("EXEC spGetProgramByDifficulty @Difficulty='" + prgmDifficulty + "'")
+    finaloutput="["
+    if len(mylist) > 0:
+        for x in mylist:
+            program = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"prgmID": ' + program[0][1:] + ', "prgmName": "' + program[1][1: len(program[1])-1] + '", "prgmDescription": "' + program[2][1: len(program[2])-1]  + '", "prgmDifficulty": "' + program[3][1: len(program[3])-2] +'"},'
+            except Exception as e:
+                serialized_items = {"getPrograms": False, "Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+
+        return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+    serialized_items = {"getPrograms": False, "Message" : "No Records Found"}
+    return jsonify(serialized_items) 
+
+# API call for updating the user's program.
 # Stored Procedure Name: "spSetUserProgram"
 @app.route('/api/updateprogram', methods=['POST'])
 def updateProgram():
-    serialized_items = {"": ""}
+    prgmID = request.json['prgmID']
+    prgmName = request.json['prgmName']
+    prgmDescription = request.json['prgmDescription']
+    prgmDifficulty = request.json['prgmDifficulty']
+
+    tempprogram = Program(None, None, None, None)
+
+    if tempprogram.update(prgmID,prgmName,prgmDescription,prgmDifficulty):
+        serialized_items = {"Program Updated": "True"}
+    else:
+        serialized_items = {"Program Updated": "False"}
     return jsonify(serialized_items)
 
-# TODO - API call for getting the user's program.
+# API call for getting the user's program.
 # Stored Procedure Name: "getProgram"
 @app.route('/api/getprogram', methods=['GET'])
 def getProgram():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    userEmail = request.json['userEmail'] 
+
+    mylist = DBQuery("EXEC spGetProgram @Email='" + userEmail + "'")
+    finaloutput="["
+    if len(mylist) > 0:
+        for x in mylist:
+            program = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"prgmID": ' + program[0][1:] + ', "prgmName": "' + program[1][1: len(program[1])-1] + '", "prgmDescription": "' + program[2][1: len(program[2])-1]  + '", "prgmDifficulty": "' + program[3][1: len(program[3])-2] +'"},'
+            except Exception as e:
+                serialized_items = {"getPrograms": False, "Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+
+    return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
 # TODO - API call for getting all exercises relating to user's program.
 # Stored Procedure Name: "spGetExerciseByUserProgram" - Need to make this - Shaun
