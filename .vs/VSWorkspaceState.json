@@ -2,10 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\fitflex",
-    "\\fitflex-SQL",
     "\\fitflex-SQL\\Tables",
+    "\\static",
     "\\templates"
   ],
-  "SelectedNode": "\\templates\\index.html",
+  "SelectedNode": "\\fitflex-SQL",
   "PreviewInSolutionExplorer": false
 }
