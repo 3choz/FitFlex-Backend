@@ -79,7 +79,7 @@ def getPrograms():
     return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it
 
 # TODO - API Call for getting all Programs by difficulty for program selection
-# Stored Procedure Name: "" - Need to make this - Shaun
+# Stored Procedure Name: "[spGetProgramByDifficulty]"
 @app.route('/api/getprogramsbydifficulty', methods=['GET'])
 def getProgramsByDifficulty():
     mylist=DBQuery("EXEC spGetProgramsByDifficulty")
@@ -107,7 +107,7 @@ def getProgram():
     return jsonify(serialized_items)
 
 # TODO - API call for getting all exercises relating to user's program.
-# Stored Procedure Name: "" - Need to make this - Shaun
+# Stored Procedure Name: "spGetExerciseByUserProgram" - Need to make this - Shaun
 @app.route('/api/getuserexercise', methods=['POST'])
 def getUserExercises():
     serialized_items = {"": ""}
