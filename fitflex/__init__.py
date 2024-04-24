@@ -7,7 +7,9 @@ from flask_cors import CORS
 from fitflex.Password import Password
 from fitflex.User import User
 from fitflex.Program import Program
+from fitflex.UserExercise import UserExercise
 from fitflex.DBConnect import DBAction, DBQuery
+
 
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
 CORS(app) # Enable CORS for all routes
@@ -181,15 +183,42 @@ def getUserExercise():
 # Stored Procedure Name: "spUserExerciseInsert"
 @app.route('/api/createuserexercise', methods=['POST'])
 def createUserExercise():
-    serialized_items = {"": ""}
+    try:
+        exID = request.json['exID']
+        userEmail = request.json['userEmail']
+        ueDate = request.json['ueDate']
+        euType = request.json['euType']
+        ueAmount = request.json['ueAmount']
+        newUserExercise = (exID, userEmail,ueDate,euType,ueAmount)
+
+        if newUserExercise.create() == True:
+            serialized_items = {"User Exercise Created": True}
+        else:
+            serialized_items = {"User Exercise Created": False}
+
+
+    except Exception as e:
+        serialized_items = {"UserExercise Created": False,
+                                "Error Message":str(e)}
     return jsonify(serialized_items)
 
 # Stored Procedure Name: "spUserExerciseUpdate"
 # TODO - API call for updating a user's exercise record.
 @app.route('/api/updateuserexercise', methods=['POST'])
 def updateUserExercise():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+        ueID = request.json['ueID']
+        ueDate = request.json['ueDate']
+        euType = request.json['euType']
+        ueAmount = request.json['ueAmount']
+        
+        
+        tempUserExcercise = UserExercise(None, None, None, None)
+
+        if tempUserExcercise.update(ueID,ueDate,euType,ueAmount):
+             serialized_items = {"Program Updated": "True"}
+        else:
+             serialized_items = {"Program Updated": "False"}
+        return jsonify(serialized_items)
 
 # Stored Procedure Name: "spUserExerciseDelete"
 # TODO - API call for deleting a user's exercise record.
