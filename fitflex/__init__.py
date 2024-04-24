@@ -136,19 +136,46 @@ def getProgram():
 
     return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
-# TODO - API call for getting all exercises relating to user's program.
-# Stored Procedure Name: "spGetExerciseByUserProgram" - Need to make this - Shaun
+# API call for getting all exercises relating to user's program.
+# Stored Procedure Name: "spGetExerciseByUserProgram" 
 @app.route('/api/getuserexercise', methods=['POST'])
 def getUserExercises():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
 
-# TODO - API call for getting all records relating to a user's specific exercise.
+    ueID = request.json['ueID'] 
+    mylist = DBQuery("EXEC spgetuserexercise @ID=" + str(ueID))
+
+    finaloutput="["
+    if len(mylist) > 0:
+        for x in mylist:
+            program = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
+            except Exception as e:
+                serialized_items = {"getExercise": False, "Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+
+        return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+
+# API call for getting all records relating to a user's specific exercise.
 # Stored Procedure Name: "spGetUserExercises"
 @app.route('/api/getuserexercises', methods=['POST'])
 def getUserExercise():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    userEmail = request.json['userEmail'] 
+    exID = request.json['exID'] 
+    mylist = DBQuery("EXEC spgetuserexercises @Email='" + userEmail + "', @ID = " + str(exID) + "")
+    finaloutput="["
+    if len(mylist) > 0:
+        for x in mylist:
+            program = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
+            except Exception as e:
+                serialized_items = {"getExercise": False, "Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+
+        return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
 # TODO - API call for creating a user's exercise record.
 # Stored Procedure Name: "spUserExerciseInsert"
@@ -178,7 +205,7 @@ def getUser():
     serialized_items = {"": ""}
     return jsonify(serialized_items)
 
-# TODO - API call for the updating user. It will be used under the account page.
+# API call for the updating user. It will be used under the account page.
 @app.route('/api/UpdateUser', methods=['POST'])
 def UpdateUser():
     try:
