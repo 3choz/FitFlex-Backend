@@ -35,8 +35,7 @@ class Password:
     def create(self, password):
 
         # create Salt
-        salt = ''.join(random.choices(string.ascii_uppercase +
-                             string.digits, k=25))
+        salt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
         # create Hash
         passhash = hashlib.sha256((password+salt).encode("utf-8"))
         DBAction("EXEC spPasswordInsert @Salt='"+ salt +"', @Hash='"+ passhash.hexdigest() + "'")
@@ -46,26 +45,28 @@ class Password:
         return passid
 
     # Update Password. Password reset.
-def update(self, currentPassword, newPassword):
-    # Fetch current password hash and salt from the database
-    hashSalt = DBQuery("exec spGetPasswordHash @Email = '"+ self.userEmail +"'")
-    if hashSalt:
-        currentHash = hashSalt[0].get('passHash')
-        currentSalt = hashSalt[0].get('passSalt')
+    def update(self, userEmail, currentPassword, newPassword):
+        # Fetch current password hash and salt from the database
+        hashSalt = DBQuery("exec spGetPasswordHash @Email = '"+ userEmail +"'")
+        if(len(hashSalt[0])>3):
+            output = (hashSalt[0])[2:len(hashSalt[0])-2]
+            output = output.split("', '")
+            tempHash = output[0]
+            tempSalt = output[1]
 
-        # Check if the current password matches the provided currentPassword
-        if hashlib.sha256((currentPassword + currentSalt).encode("utf-8")).hexdigest() == currentHash:
-            # Generate new salt and hash for the newPassword
-            newSalt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
-            newHash = hashlib.sha256((newPassword + newSalt).encode("utf-8")).hexdigest()
-            
-            # Update the password in the database with the new salt and hash
-            DBAction("EXEC spPasswordUpdate @ID='"+ str(self.passID) +"', @NewSalt='"+ newSalt +"', @NewHash='"+ newHash + "'")
-            return True
+            # Check if the current password matches the provided currentPassword
+            if (hashlib.sha256((currentPassword + tempSalt).encode("utf-8")).hexdigest() == tempHash):
+                # Generate new salt and hash for the newPassword
+                newSalt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
+                newHash = hashlib.sha256((newPassword + newSalt).encode("utf-8")).hexdigest()
+
+                # Update the password in the database with the new salt and hash
+                DBAction("EXEC spPasswordUpdate @Email='" + userEmail + "', @Salt='" + newSalt + "', @Hash='" + newHash + "'")
+                return True
+            else:
+                # Current password does not match
+                return False
         else:
-            # Current password does not match
+            # Error fetching current password hash and salt
             return False
-    else:
-        # Error fetching current password hash and salt
-        return False
 

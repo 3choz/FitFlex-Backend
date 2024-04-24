@@ -179,7 +179,7 @@ def getUserExercise():
 
         return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
-# TODO - API call for creating a user's exercise record.
+# API call for creating a user's exercise record.
 # Stored Procedure Name: "spUserExerciseInsert"
 @app.route('/api/createuserexercise', methods=['POST'])
 def createUserExercise():
@@ -203,7 +203,7 @@ def createUserExercise():
     return jsonify(serialized_items)
 
 # Stored Procedure Name: "spUserExerciseUpdate"
-# TODO - API call for updating a user's exercise record.
+# API call for updating a user's exercise record.
 @app.route('/api/updateuserexercise', methods=['POST'])
 def updateUserExercise():
         ueID = request.json['ueID']
@@ -228,11 +228,35 @@ def deleteUserExercise():
     return jsonify(serialized_items)
 
 # Stored Procedure Name: "spGetUser"
-# TODO - API call to get user data for profile page for viewing and updating
+# API call to get user data for profile page for viewing and updating
 @app.route('/api/getuser', methods=['POST'])
 def getUser():
+    userEmail = request.json['userEmail']
+    mylist = DBQuery("EXEC spGetUser @Email='" + userEmail + "'")
+    finaloutput="["
+    if len(mylist) > 0:
+        for x in mylist:
+            program = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"userEmail": "' + program[0][2:len(program[0])-1] + '",'
+                finaloutput = finaloutput + '"passID": ' + program[1] + ','
+                finaloutput = finaloutput + '"prgmID": ' + program[2] + ','
+                finaloutput = finaloutput + '"userFirstName": "' + program[3][1:len(program[3])-1] + '",'
+                finaloutput = finaloutput + '"userLastName": "' + program[4][1:len(program[4])-1] + '",'
+                finaloutput = finaloutput + '"UserDOB": "' + program[5][14:]
+                finaloutput = finaloutput + '/' + program[6]
+                finaloutput = finaloutput + '/' + program[7][0:len(program[7])-1] + '",'
+                finaloutput = finaloutput + '"userPhone": "' + program[8][1:len(program[8])-1] + '",'
+                finaloutput = finaloutput + '"userSex": "' + program[9][1:len(program[9])-2] +'"}'
+                
+            except Exception as e:
+                serialized_items = {"getUser": False, "Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)]+"]"
+        print(finaloutput)
+
     serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
 # API call for the updating user. It will be used under the account page.
 @app.route('/api/UpdateUser', methods=['POST'])
@@ -255,12 +279,24 @@ def UpdateUser():
                             "Error Message":str(e)}
     return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
-# TODO - API call to update password for the user.
+# API call to update password for the user.
 # Stored Procedure Name: "spPasswordUpdate"
 @app.route('/api/updatepassword', methods=['POST'])
 def updatePassword():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    userEmail = request.json['userEmail']    
+    userPassword = request.json['userPassword']
+    userNewPassword = request.json['userNewPassword']
+
+    tempPass = Password()
+
+    try:
+        if(tempPass.login(userEmail,userPassword) == True):
+            if (tempPass.update(userEmail, userPassword, userNewPassword) == True):
+                return jsonify({"Password Changed": True})
+            else:
+                return jsonify({"Password Changed": False})
+    except:
+        return jsonify({"Error": True})
 
 # TODO - API call to view user weight.
 # Stored Procedure Name: "spGetWeight"

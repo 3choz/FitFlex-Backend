@@ -1,6 +1,6 @@
 # Class that defines the Program object. Object will match values of the table: tblUserExercise
 
-from DBConnect import DBAction,DBQuery
+from fitflex.DBConnect import DBAction,DBQuery
 
 class UserExercise:
 
