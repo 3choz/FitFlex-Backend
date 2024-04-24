@@ -196,7 +196,6 @@ def createUserExercise():
         else:
             serialized_items = {"User Exercise Created": False}
 
-
     except Exception as e:
         serialized_items = {"UserExercise Created": False,
                                 "Error Message":str(e)}
