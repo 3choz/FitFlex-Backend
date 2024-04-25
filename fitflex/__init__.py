@@ -301,15 +301,39 @@ def updatePassword():
 # Stored Procedure Name: "spGetWeight"
 @app.route('/api/getuserweight', methods=['POST'])
 def getUserWeight():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    uwID = request.json['uwID']
+    mylist=DBQuery("EXEC spGetweight @ID='" + uwID + "'")
+    finaloutput="["
+    for x in mylist:
+        userWeight = x.split(", ")
+        try:
+            finaloutput = finaloutput + '{"uwID": ' +  userWeight[0][1:] + ', "userEmail": "' +  userWeight[1][1: len( userWeight[1])-1] + '", "uwDate": "' + userWeight[2][1: len(userWeight[2])-1]  + '", "uwWeight": "' + userWeight[3][1: len(userWeight[3])-2] +'", },'
+        
+        except Exception as e:
+            serialized_items = {"getWeight": False, "Error Message":str(e)}
+            return jsonify(serialized_items)
+        
+        finaloutput=finaloutput[0:len(finaloutput)]+"]"
+        print(finaloutput)
 
 # TODO - API call to view user weights.
 # Stored Procedure Name: "spGetWeights"
 @app.route('/api/getuserweights', methods=['POST'])
 def getUserWeights():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+    userEmail = request.json['userEmail']
+    mylist = DBQuery("EXEC spGetWeights @Email='" + userEmail + "'")
+    finaloutput="["
+    for x in mylist:
+        userWeights = x.split(", ")
+        try:
+            finaloutput = finaloutput + '{"uwID": ' +  userWeights[0][1:] + ', "userEmail": "' +  userWeights[1][1: len( userWeights[1])-1] + '", "uwDate": "' + userWeights[2][1: len(userWeights[2])-1]  + '", "uwWeight": "' + userWeights[3][1: len(userWeights[3])-2] +'", },'
+        
+        except Exception as e:
+            serialized_items = {"getWeights": False, "Error Message":str(e)}
+            return jsonify(serialized_items)
+        
+        finaloutput=finaloutput[0:len(finaloutput)]+"]"
+        print(finaloutput)
 
 # TODO - API call to update user weight.
 # Stored Procedure Name: "spWeightUpdate"
