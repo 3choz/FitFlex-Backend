@@ -1,3 +1,4 @@
+from ast import Delete
 import os
 import json
 
@@ -8,6 +9,7 @@ from fitflex.Password import Password
 from fitflex.User import User
 from fitflex.Program import Program
 from fitflex.UserExercise import UserExercise
+from fitflex.UserWeight import UserWeight
 from fitflex.DBConnect import DBAction, DBQuery
 
 
@@ -223,8 +225,8 @@ def updateUserExercise():
 # TODO - API call for deleting a user's exercise record.
 @app.route('/api/deleteuserexercise', methods=['POST'])
 def deleteUserExercise():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+         serialized_items = {"": ""}
+         return jsonify(serialized_items)
 
 # Stored Procedure Name: "spGetUser"
 # API call to get user data for profile page for viewing and updating
@@ -339,15 +341,27 @@ def getUserWeights():
 # Stored Procedure Name: "spWeightUpdate"
 @app.route('/api/updateuserweight', methods=['POST'])
 def updateUserWeight():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+        uwID = request.json['uwID']
+        uwDate = request.json['uwDate']
+        uwWeight = request.json['uwWeight']
+        
+     
+        tempUserWeight = UserWeight(None, None, None)
+        
+    
+        if updateUserWeight.update(uwID,uwDate,uwWeight) == True:
+                 serialized_items = {"User Weight Updated": True}
+        else:
+                serialized_items = {"User Weight Updated": False}
+              
+                return jsonify(serialized_items)
 
 # TODO - API call to delete user weight.
 # Stored Procedure Name: "spWeightDelete"
 @app.route('/api/deleteuserweight', methods=['POST'])
 def deleteUserWeight():
-    serialized_items = {"": ""}
-    return jsonify(serialized_items)
+         serialized_items = {"": ""}
+         return jsonify(serialized_items)
 
 # API call used for testing the connection between the frontend and the backend.
 @app.route('/api/test', methods=['GET'])
