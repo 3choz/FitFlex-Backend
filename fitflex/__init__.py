@@ -273,33 +273,31 @@ def getUser():
     try:
         userEmail = request.json['userEmail']
         mylist = DBQuery("EXEC spGetUser @Email='" + userEmail + "'")
-        finaloutput="["
+        finaloutput="{"
         if len(mylist) > 0:
             for x in mylist:
                 program = x.split(", ")
                 try:
-                    finaloutput = finaloutput + '{"userEmail": "' + program[0][2:len(program[0])-1] + '",'
-                    finaloutput = finaloutput + '"passID": ' + program[1] + ','
-                    finaloutput = finaloutput + '"prgmID": ' + program[2] + ','
-                    finaloutput = finaloutput + '"userFirstName": "' + program[3][1:len(program[3])-1] + '",'
-                    finaloutput = finaloutput + '"userLastName": "' + program[4][1:len(program[4])-1] + '",'
-                    finaloutput = finaloutput + '"UserDOB": "' + program[5][14:]
-                    finaloutput = finaloutput + '/' + program[6]
-                    finaloutput = finaloutput + '/' + program[7][0:len(program[7])-1] + '",'
-                    finaloutput = finaloutput + '"userPhone": "' + program[8][1:len(program[8])-1] + '",'
-                    finaloutput = finaloutput + '"userSex": "' + program[9][1:len(program[9])-2] +'"}'
-                
+                    finaloutput = finaloutput + f'"userEmail": "{program[0][2:len(program[0])-1]}",'
+                    finaloutput = finaloutput + f'"passID": {program[1]},'
+                    finaloutput = finaloutput + f'"prgmID": {program[2]},' # Causes an error when a program is not assigned to a user
+                    finaloutput = finaloutput + f'"userFirstName": "{program[3][1:len(program[3])-1]}",'
+                    finaloutput = finaloutput + f'"userLastName": "{program[4][1:len(program[4])-1]}",'
+                    finaloutput = finaloutput + f'"UserDOB": "{program[5][14:]}/{program[6]}/{program[7][0:len(program[7])-1]}",'
+                    finaloutput = finaloutput + f'"userPhone": "{program[8][1:len(program[8])-1]}",'
+                    finaloutput = finaloutput + f'"userSex": "{program[9][1:len(program[9])-2]}"'
                 except Exception as e:
                     serialized_items = {"Database Operation": False,"Error Message":str(e)}
                     return jsonify(serialized_items)
 
-            finaloutput=finaloutput[0:len(finaloutput)]+"]"
+            finaloutput = finaloutput + "}"
 
         return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+
 
 # API call for the updating user. It will be used under the account page.
 @app.route('/api/UpdateUser', methods=['POST'])
