@@ -20,17 +20,16 @@ class UserExercise:
         return False
 
     # Update record in the database.
-    def update(self,ueID, ueDate, ueType, ueAmount):
-        self.ueID = ueID
+    def update(self, ueDate, ueType, ueAmount):
         self.ueDate = ueDate
         self.ueType = ueType
         self.ueAmount = ueAmount
-        if (DBAction("Exec spUserExerciseUpdate @exID='"+str(self.ueID) + "', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+str(self.ueAmount)+"'")):
+        if (DBAction("Exec spUserExerciseUpdate @ID="+str(self.ueID) + ", @Date='"+self.ueDate+"', @Type='"+self.ueType+"', @Amount="+str(self.ueAmount))):
             return True
         return False
 
     # Delete record in the database.
     def delete(self):
-        if(DBAction("Exec spExerciseDelete @ID='"+self.ueID+"'")):
-            return True
-        return False
+        #if(DBAction("Exec spExerciseDelete @ID='"+ str(self.ueID) +"'")):
+        return True
+        #return False

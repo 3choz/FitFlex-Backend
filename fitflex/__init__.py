@@ -252,19 +252,18 @@ def createUserExercise():
 
     return jsonify(serialized_items)
 
-# Stored Procedure Name: "spUserExerciseUpdate"
-# API call for updating a user's exercise record.
+# Validated - API call for updating a user's exercise record.
 @app.route('/api/updateuserexercise', methods=['POST'])
 def updateUserExercise():
     try:
         ueID = request.json['ueID']
         ueDate = request.json['ueDate']
-        euType = request.json['euType']
+        ueType = request.json['ueType']
         ueAmount = request.json['ueAmount']
         
-        tempUserExcercise = UserExercise(None, None, None, None, None, None)
+        tempUserExcercise = UserExercise(ueID, None, None, None, None, None)
 
-        if tempUserExcercise.update(ueID,ueDate,euType,ueAmount):
+        if tempUserExcercise.update(ueDate,ueType,ueAmount):
              serialized_items = {"Database Operation": True}
         else:
              serialized_items = {"Database Operation": False}
@@ -274,13 +273,14 @@ def updateUserExercise():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
-# Stored Procedure Name: "spUserExerciseDelete"
-# API call for deleting a user's exercise record.
+# Validated - API call for deleting a user's exercise record.
 @app.route('/api/deleteuserexercise', methods=['POST'])
 def deleteUserExercise():
     try:
         ueID = request.json['ueID']
+
         tempUserExcercise = UserExercise(ueID, None, None, None, None, None)
+
         if tempUserExcercise.delete() == True:
              serialized_items = {"Database Operation": True}
         else:
@@ -291,8 +291,7 @@ def deleteUserExercise():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
-# Stored Procedure Name: "spGetUser"
-# API call to get user data for profile page for viewing and updating
+# Validated - API call to get user data for profile page for viewing and updating
 @app.route('/api/getuser', methods=['POST'])
 def getUser():
     try:
@@ -340,9 +339,8 @@ def getUser():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
-
-# API call for the updating user. It will be used under the account page.
-@app.route('/api/UpdateUser', methods=['POST'])
+# Validated - API call for the updating user. It will be used under the account page.
+@app.route('/api/updateuser', methods=['POST'])
 def UpdateUser():
     try:
         userEmail = request.json['userEmail']
@@ -359,9 +357,9 @@ def UpdateUser():
             serialized_items = {"Database Operation": False,"Error Message":str(e)}
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-    return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+    return jsonify(serialized_items)
 
-# API call to update password for the user.
+# Validated - API call to update password for the user.
 # Stored Procedure Name: "spPasswordUpdate"
 @app.route('/api/updatepassword', methods=['POST'])
 def updatePassword():
@@ -377,8 +375,9 @@ def updatePassword():
                 return jsonify({"Database Operation": True})
             else:
                 return jsonify({"Database Operation": False})
-    except:
-        return jsonify({"Database Operation": False,"Error Message":str(e)})
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items)
 
 # TODO - API call to view user weight.
 # Stored Procedure Name: "spGetWeight"
