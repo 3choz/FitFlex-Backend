@@ -237,8 +237,7 @@ def updateUserExercise():
         euType = request.json['euType']
         ueAmount = request.json['ueAmount']
         
-        
-        tempUserExcercise = UserExercise(None, None, None, None)
+        tempUserExcercise = UserExercise(None, None, None, None, None, None)
 
         if tempUserExcercise.update(ueID,ueDate,euType,ueAmount):
              serialized_items = {"Database Operation": True}
@@ -251,11 +250,16 @@ def updateUserExercise():
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
 
 # Stored Procedure Name: "spUserExerciseDelete"
-# TODO - API call for deleting a user's exercise record.
+# API call for deleting a user's exercise record.
 @app.route('/api/deleteuserexercise', methods=['POST'])
 def deleteUserExercise():
     try:
-        serialized_items = {"": ""}
+        ueID = request.json['ueID']
+        tempUserExcercise = UserExercise(ueID, None, None, None, None, None)
+        if tempUserExcercise.delete() == True:
+             serialized_items = {"Database Operation": True}
+        else:
+             serialized_items = {"Database Operation": False}
         return jsonify(serialized_items)
 
     except Exception as e:
@@ -349,7 +353,7 @@ def getUserWeight():
             finaloutput = finaloutput + '{"uwID": ' +  userWeight[0][1:] + ', "userEmail": "' +  userWeight[1][1: len( userWeight[1])-1] + '", "uwDate": "' + userWeight[2][1: len(userWeight[2])-1]  + '", "uwWeight": "' + userWeight[3][1: len(userWeight[3])-2] +'", },'
         
         except Exception as e:
-            serialized_items = {"getWeight": False, "Error Message":str(e)}
+            serialized_items = {"Database Operation": False,"Error Message":str(e)}
             return jsonify(serialized_items)
         
         finaloutput=finaloutput[0:len(finaloutput)]+"]"
@@ -368,7 +372,7 @@ def getUserWeights():
             finaloutput = finaloutput + '{"uwID": ' +  userWeights[0][1:] + ', "userEmail": "' +  userWeights[1][1: len( userWeights[1])-1] + '", "uwDate": "' + userWeights[2][1: len(userWeights[2])-1]  + '", "uwWeight": "' + userWeights[3][1: len(userWeights[3])-2] +'", },'
         
         except Exception as e:
-            serialized_items = {"getWeights": False, "Error Message":str(e)}
+            serialized_items = {"Database Operation": False,"Error Message":str(e)}
             return jsonify(serialized_items)
         
         finaloutput=finaloutput[0:len(finaloutput)]+"]"
@@ -378,24 +382,38 @@ def getUserWeights():
 # Stored Procedure Name: "spWeightUpdate"
 @app.route('/api/updateuserweight', methods=['POST'])
 def updateUserWeight():
+    try:
         uwID = request.json['uwID']
         uwDate = request.json['uwDate']
         uwWeight = request.json['uwWeight']
         
-     
-        tempUserWeight = UserWeight(None, None, None)
+        tempUserWeight = UserWeight(None, None, None, None)
         
-    
-        if updateUserWeight.update(uwID,uwDate,uwWeight) == True:
-                 serialized_items = {"User Weight Updated": True}
+        if tempUserWeight.update(uwID,None, uwDate,uwWeight) == True:
+            serialized_items = {"Database Operation": True}
         else:
-                serialized_items = {"User Weight Updated": False}
+            serialized_items = {"Database Operation": False}
               
-                return jsonify(serialized_items)
+        return jsonify(serialized_items)
+
+    except Exception as e:
+        serialized_items = {"Database Operation": False, "Error Message":str(e)}
+        return jsonify(serialized_items)
+
 
 # TODO - API call to delete user weight.
 # Stored Procedure Name: "spWeightDelete"
 @app.route('/api/deleteuserweight', methods=['POST'])
 def deleteUserWeight():
-         serialized_items = {"": ""}
-         return jsonify(serialized_items)
+    try:
+        uwID = request.json['uwID']
+        tempUserWeight = UserWeight(uwID, None, None, None)
+        if tempUserWeight.delete() == True:
+            serialized_items = {"Database Operation": True}
+        else:
+            serialized_items = {"Database Operation": False}
+        return jsonify(serialized_items)
+
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items)

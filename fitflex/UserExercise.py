@@ -1,6 +1,6 @@
 # Class that defines the Program object. Object will match values of the table: tblUserExercise
 
-from fitflex.DBConnect import DBAction,DBQuery
+from fitflex.DBConnect import DBAction
 
 class UserExercise:
 
@@ -15,15 +15,22 @@ class UserExercise:
 
     # Create record in the database.
     def create(self):
-        DBAction("Exce spUserExerciseInsert @exID='"+self.exID+"', @Email='"+self.userEmail+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")
+        if DBAction("Exce spUserExerciseInsert @exID='"+self.exID+"', @Email='"+self.userEmail+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'") == True:
+            return True
+        return False
 
     # Update record in the database.
-    def update(self, ueDate, euType, ueAmount):
+    def update(self,ueID, ueDate, euType, ueAmount):
+        self.ueID = ueID
         self.ueDate = ueDate
         self.euType = euType
         self.ueAmount = ueAmount
-        DBAction("Exce spUserExerciseUpdate @exID='"+self.ueID+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")
+        if (DBAction("Exce spUserExerciseUpdate @exID='"+self.ueID+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")):
+            return True
+        return False
 
     # Delete record in the database.
     def delete(self):
-        DBAction("Exec spExerciseDelete @ID='"+self.exID+"'")
+        if(DBAction("Exec spExerciseDelete @ID='"+self.ueID+"'")):
+            return True
+        return False

@@ -13,14 +13,22 @@ class UserWeight:
 
     # Create record in the database.
     def create(self):
-        DBAction("Exce spWeightInsert  @Email='"+self.userEmail+"', @Date='"+self.uwDate+"', @Weight='"+self.uwWeight+"'")
+        if DBAction("Exec spWeightInsert @Email='"+self.userEmail+"', @Date='"+self.uwDate+"', @Weight='"+self.uwWeight+"'") == True:
+            return True
+        return False
 
     # Update record in the database.
-    def update(self, uwDate,uwWeight):
+    def update(self,uwID, uwDate,uwWeight):
+        self.uwID = uwID
         self.uwDate = uwDate
         self.uwWeight = uwWeight
-        DBAction("Exec spExerciseUpdate @ID='" + self.uwID + "', @Date='"+self.uwDate+"', @Weight='"+self.uwWeight+"' ")
+        
+        if DBAction("Exec spExerciseUpdate @ID='" + self.uwID + "', @Date='"+self.uwDate+"', @Weight='"+self.uwWeight+"' ") == True:
+            return True
+        return False
 
     # Delete record in the database.
     def delete(self):
-        DBAction("Exec spExerciseDelete @ID='"+self.uwID+"'")
+        if DBAction("Exec spExerciseDelete @ID='"+self.uwID+"'") == True:
+            return True
+        return False
