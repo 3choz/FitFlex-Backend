@@ -300,27 +300,14 @@ def getUser():
             for x in mylist:
                 program = x.split(", ")
                 try:
-                    if len(program) == 9:
-                        # The user has no program assigned
-                        finaloutput = finaloutput + f'"userEmail": "{program[0][2:len(program[0])-1]}",'
-                        finaloutput = finaloutput + f'"passID": {program[1]},'
-                        finaloutput = finaloutput + f'"prgmID": 0,'
-                        finaloutput = finaloutput + f'"userFirstName": "{program[2][1:len(program[2])-1]}",'
-                        finaloutput = finaloutput + f'"userLastName": "{program[3][1:len(program[3])-1]}",'
-                        finaloutput = finaloutput + f'"UserDOB": "{program[4][14:]}/{program[5]}/{program[6][0:len(program[6])-1]}",'
-                        finaloutput = finaloutput + f'"userPhone": "{program[7][1:len(program[7])-1]}",'
-                        finaloutput = finaloutput + f'"userSex": "{program[8][1:len(program[8])-2]}"'
-                    else:
-                        # The user has a program assigned 
-                        finaloutput = finaloutput + f'"userEmail": "{program[0][2:len(program[0])-1]}",'
-                        finaloutput = finaloutput + f'"passID": {program[1]},'
-                        finaloutput = finaloutput + f'"prgmID": {program[2]},'
-                        finaloutput = finaloutput + f'"userFirstName": "{program[3][1:len(program[3])-1]}",'
-                        finaloutput = finaloutput + f'"userLastName": "{program[4][1:len(program[4])-1]}",'
-                        finaloutput = finaloutput + f'"UserDOB": "{program[5][14:]}/{program[6]}/{program[7][0:len(program[7])-1]}",'
-                        finaloutput = finaloutput + f'"userPhone": "{program[8][1:len(program[8])-1]}",'
-                        finaloutput = finaloutput + f'"userSex": "{program[9][1:len(program[9])-2]}"'
-                
+                    finaloutput = finaloutput + f'"userEmail": "{program[0][2:len(program[0])-1]}",'
+                    finaloutput = finaloutput + f'"passID": {program[1]},'
+                    finaloutput = finaloutput + f'"prgmID": {program[2]},' # Causes an error when a program is not assigned to a user
+                    finaloutput = finaloutput + f'"userFirstName": "{program[3][1:len(program[3])-1]}",'
+                    finaloutput = finaloutput + f'"userLastName": "{program[4][1:len(program[4])-1]}",'
+                    finaloutput = finaloutput + f'"UserDOB": "{program[5][14:]}/{program[6]}/{program[7][0:len(program[7])-1]}",'
+                    finaloutput = finaloutput + f'"userPhone": "{program[8][1:len(program[8])-1]}",'
+                    finaloutput = finaloutput + f'"userSex": "{program[9][1:len(program[9])-2]}"'
                 except Exception as e:
                     serialized_items = {"Database Operation": False,"Error Message":str(e)}
                     return jsonify(serialized_items)
