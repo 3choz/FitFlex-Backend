@@ -354,7 +354,6 @@ def UpdateUser():
     return jsonify(serialized_items)
 
 # Validated - API call to update password for the user.
-# Stored Procedure Name: "spPasswordUpdate"
 @app.route('/api/updatepassword', methods=['POST'])
 def updatePassword():
     try:
@@ -373,43 +372,55 @@ def updatePassword():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items)
 
-# TODO - API call to view user weight.
-# Stored Procedure Name: "spGetWeight"
+# Validated - API call to view user weight.
 @app.route('/api/getuserweight', methods=['POST'])
 def getUserWeight():
-    uwID = request.json['uwID']
-    mylist=DBQuery("EXEC spGetweight @ID='" + uwID + "'")
-    finaloutput="["
-    for x in mylist:
-        userWeight = x.split(", ")
-        try:
-            finaloutput = finaloutput + '{"uwID": ' +  userWeight[0][1:] + ', "userEmail": "' +  userWeight[1][1: len( userWeight[1])-1] + '", "uwDate": "' + userWeight[2][1: len(userWeight[2])-1]  + '", "uwWeight": "' + userWeight[3][1: len(userWeight[3])-2] +'", },'
-        
-        except Exception as e:
-            serialized_items = {"Database Operation": False,"Error Message":str(e)}
-            return jsonify(serialized_items)
-        
-        finaloutput=finaloutput[0:len(finaloutput)]+"]"
-        print(finaloutput)
 
-# TODO - API call to view user weights.
-# Stored Procedure Name: "spGetWeights"
+    try:
+
+        uwID = request.json['uwID']
+        mylist=DBQuery("EXEC spGetweight @ID='" + str(uwID) + "'")
+        finaloutput="["
+        for x in mylist:
+            userWeight = x.split(", ")
+            try:
+                finaloutput = finaloutput + '{"uwID": ' +  userWeight[0][1:] + ', "userEmail": "' +  userWeight[1][1: len( userWeight[1])-1] + '", "uwDate": "' + userWeight[2][1: len(userWeight[2])-1]  + '", "uwWeight": ' + userWeight[3][9: len(userWeight[3])-3] +' },'
+        
+            except Exception as e:
+                serialized_items = {"Database Operation": False,"Error Message":str(e)}
+                return jsonify(serialized_items)
+        
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+        return jsonify(json.loads(finaloutput))
+    
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items) 
+
+# Validated - API call to view user weights.
 @app.route('/api/getuserweights', methods=['POST'])
 def getUserWeights():
-    userEmail = request.json['userEmail']
-    mylist = DBQuery("EXEC spGetWeights @Email='" + userEmail + "'")
-    finaloutput="["
-    for x in mylist:
-        userWeights = x.split(", ")
-        try:
-            finaloutput = finaloutput + '{"uwID": ' +  userWeights[0][1:] + ', "userEmail": "' +  userWeights[1][1: len( userWeights[1])-1] + '", "uwDate": "' + userWeights[2][1: len(userWeights[2])-1]  + '", "uwWeight": "' + userWeights[3][1: len(userWeights[3])-2] +'", },'
+    try:
+
+
+        userEmail = request.json['userEmail']
+        mylist = DBQuery("EXEC spGetWeights @Email='" + userEmail + "'")
+        finaloutput="["
+        for x in mylist:
+            userWeights = x.split(", ")
+
+            try:
+                finaloutput = finaloutput + '{"uwID": ' +  userWeights[0][1:] + ', "userEmail": "' +  userWeights[1][1: len( userWeights[1])-1] + '", "uwDate": "' + userWeights[2][1: len(userWeights[2])-1]  + '", "uwWeight": ' + userWeights[3][9: len(userWeights[3])-3] +' },'
+            except Exception as e:
+                serialized_items = {"Database Operation": False,"Error Message":str(e)}
+                return jsonify(serialized_items)
         
-        except Exception as e:
-            serialized_items = {"Database Operation": False,"Error Message":str(e)}
-            return jsonify(serialized_items)
-        
-        finaloutput=finaloutput[0:len(finaloutput)]+"]"
-        print(finaloutput)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+        return jsonify(json.loads(finaloutput))
+
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items) 
 
 # Validated - API call to Create user weight.
 @app.route('/api/createuserweight', methods=['POST'])
