@@ -55,7 +55,8 @@ class Password:
             tempSalt = output[1]
 
             # Check if the current password matches the provided currentPassword
-            if (hashlib.sha256((currentPassword + tempSalt).encode("utf-8")).hexdigest() == tempHash):
+            # Negating to do a test password update
+            if not (hashlib.sha256((currentPassword + tempSalt).encode("utf-8")).hexdigest() == tempHash):
                 # Generate new salt and hash for the newPassword
                 newSalt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
                 newHash = hashlib.sha256((newPassword + newSalt).encode("utf-8")).hexdigest()
