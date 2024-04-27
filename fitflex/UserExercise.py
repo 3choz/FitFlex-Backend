@@ -10,22 +10,22 @@ class UserExercise:
         self.exID = exID
         self.userEmail = userEmail
         self.ueDate = ueDate
-        self.euType = euType
+        self.ueType = euType
         self.ueAmount = ueAmount
 
     # Create record in the database.
     def create(self):
-        if DBAction("Exce spUserExerciseInsert @exID='"+self.exID+"', @Email='"+self.userEmail+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'") == True:
+        if DBAction("Exec spUserExerciseInsert @exID='" + str(self.exID)+"', @Email='"+self.userEmail+"', @Date='"+self.ueDate +"', @Type='"+self.ueType +"', @Amount='" + str(self.ueAmount) + "'") == True:
             return True
         return False
 
     # Update record in the database.
-    def update(self,ueID, ueDate, euType, ueAmount):
+    def update(self,ueID, ueDate, ueType, ueAmount):
         self.ueID = ueID
         self.ueDate = ueDate
-        self.euType = euType
+        self.ueType = ueType
         self.ueAmount = ueAmount
-        if (DBAction("Exce spUserExerciseUpdate @exID='"+self.ueID+"', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+self.ueAmount+"'")):
+        if (DBAction("Exec spUserExerciseUpdate @exID='"+str(self.ueID) + "', @Date='"+self.ueDate+"', @Type='"+self.euType+"', @Amount='"+str(self.ueAmount)+"'")):
             return True
         return False
 

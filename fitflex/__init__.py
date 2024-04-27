@@ -10,7 +10,7 @@ from fitflex.User import User
 from fitflex.Program import Program
 from fitflex.UserExercise import UserExercise
 from fitflex.UserWeight import UserWeight
-from fitflex.DBConnect import DBAction, DBQuery
+from fitflex.DBConnect import DBQuery
 
 
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
@@ -22,8 +22,7 @@ def index():
    print('Request for index page received')
    return render_template('index.html')
 
-# API call for the logging in the user. 
-# Password Login Method
+# Validated - API call for the logging in the user. 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
@@ -41,7 +40,7 @@ def login():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
     return jsonify(serialized_items)
 
-# API call for creating a user. This will be called under the create account page.
+# Validated - API call for creating a user. This will be called under the create account page.
 @app.route('/api/createuser', methods=['POST'])
 def createUser():
     try:
@@ -64,9 +63,9 @@ def createUser():
     except Exception as e:
         serialized_items = {"Database Operation": False, "Error Message":str(e)}
 
-    return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+    return jsonify(serialized_items) 
 
-# Used for getting all Programs for program selection
+# Validated - Used for getting all Programs for program selection
 @app.route('/api/getprograms', methods=['GET'])
 def getPrograms():
     try:
@@ -81,14 +80,13 @@ def getPrograms():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# API Call for getting all Programs by difficulty for program selection
-# Stored Procedure Name: "[spGetProgramByDifficulty]"
+# Validated - API Call for getting all Programs by difficulty for program selection
 @app.route('/api/getprogramsbydifficulty', methods=['POST'])
 def getProgramsByDifficulty():
     try:
-        prgmDifficulty = request.json['Difficulty']
+        prgmDifficulty = request.json['prgmDifficulty']
 
         mylist = DBQuery("EXEC spGetProgramByDifficulty @Difficulty='" + prgmDifficulty + "'")
         finaloutput="["
@@ -108,19 +106,16 @@ def getProgramsByDifficulty():
         serialized_items = {"Database Operation": False, "Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# API call for updating the user's program.
-# Stored Procedure Name: "spSetUserProgram"
+# Validated - API call for updating the user's program.
 @app.route('/api/updateprogram', methods=['POST'])
 def updateProgram():
     try:
+        userEmail = request.json['userEmail']
         prgmID = request.json['prgmID']
-        prgmName = request.json['prgmName']
-        prgmDescription = request.json['prgmDescription']
-        prgmDifficulty = request.json['prgmDifficulty']
 
-        tempprogram = Program(None, None, None, None)
+        tempUser = User(userEmail,None, None, None, None, None, None, None)
 
-        if tempprogram.update(prgmID,prgmName,prgmDescription,prgmDifficulty):
+        if tempUser.updateProgram(prgmID):
             serialized_items = {"Database Operation": True}
         else:
             serialized_items = {"Database Operation": False}
@@ -128,10 +123,9 @@ def updateProgram():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# API call for getting the user's program.
-# Stored Procedure Name: "getProgram"
+# Validated - API call for getting the user's program.
 @app.route('/api/getprogram', methods=['GET'])
 def getProgram():
     try:
@@ -153,16 +147,72 @@ def getProgram():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# API call for getting all exercises relating to user's program.
-# Stored Procedure Name: "spGetExerciseByUserProgram" 
+# Validated - API call for getting all exercises relating to user's program.
+@app.route('/api/getusersexercises', methods=['POST'])
+def getUserExercise():
+    try:
+        userEmail = request.json['userEmail'] 
+        mylist = DBQuery("EXEC spGetExerciseByUserProgram @Email='" + userEmail + "'")
+
+        finaloutput="["
+        if len(mylist) > 0:
+            for x in mylist:
+                program = x.split(", ")
+
+                try:
+                    finaloutput = finaloutput + '{"exID": ' + program[0][1:] + ','
+                    finaloutput = finaloutput + '"prgmID": ' + program[1] + ','
+                    finaloutput = finaloutput + '"exName": "' + program[3][1: len(program[3])-1] + '",'
+                    finaloutput = finaloutput + '"exDescription": "' + program[4][1: len(program[4])-1] + '",'
+                    finaloutput = finaloutput + '"exVideolink": "' + program[5][1: len(program[5])-1] + '",'
+                    finaloutput = finaloutput + '"exTrainerSex": "' + program[6][1: len(program[6])-1] + '",'
+                    finaloutput = finaloutput + '"exVideolength": ' + program[7][0: len(program[7])-1] + '},'
+                
+                except Exception as e:
+                    serialized_items = {"Database Operation": False,"Error Message":str(e)}
+                    return jsonify(serialized_items)
+
+            finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+            print(finaloutput)
+            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items) 
+
+# Validated - API call for getting all exercises relating to user's program.
+@app.route('/api/getuserexercisesbyexercise', methods=['POST'])
+def getUserExercisesByExercise():
+    try:
+        userEmail = request.json['userEmail']
+        exID = request.json['exID'] 
+        mylist = DBQuery("EXEC spGetUserExercises @Email='" + userEmail + "', @ID=" + str(exID))
+
+        finaloutput="["
+        if len(mylist) > 0:
+            for x in mylist:
+                program = x.split(", ")
+
+                try:
+                    finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
+                except Exception as e:
+                    serialized_items = {"Database Operation": False,"Error Message":str(e)}
+                    return jsonify(serialized_items)
+            finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+
+            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+    except Exception as e:
+        serialized_items = {"Database Operation": False,"Error Message":str(e)}
+        return jsonify(serialized_items) 
+
+# Validated - API call for get record relating to a user's specific exercise.
 @app.route('/api/getuserexercise', methods=['POST'])
 def getUserExercises():
     try:
         ueID = request.json['ueID'] 
         mylist = DBQuery("EXEC spgetuserexercise @ID=" + str(ueID))
-
         finaloutput="["
         if len(mylist) > 0:
             for x in mylist:
@@ -178,44 +228,19 @@ def getUserExercises():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# API call for getting all records relating to a user's specific exercise.
-# Stored Procedure Name: "spGetUserExercises"
-@app.route('/api/getuserexercises', methods=['POST'])
-def getUserExercise():
-    try:
-        userEmail = request.json['userEmail'] 
-        exID = request.json['exID'] 
-        mylist = DBQuery("EXEC spgetuserexercises @Email='" + userEmail + "', @ID = " + str(exID) + "")
-        finaloutput="["
-        if len(mylist) > 0:
-            for x in mylist:
-                program = x.split(", ")
-                try:
-                    finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
-                except Exception as e:
-                    serialized_items = {"Database Operation": False,"Error Message":str(e)}
-                    return jsonify(serialized_items)
-            finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
-
-            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
-
-    except Exception as e:
-        serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
-
-# API call for creating a user's exercise record.
-# Stored Procedure Name: "spUserExerciseInsert"
+# Validated - API call for creating a user's exercise record.
 @app.route('/api/createuserexercise', methods=['POST'])
 def createUserExercise():
     try:
         exID = request.json['exID']
         userEmail = request.json['userEmail']
         ueDate = request.json['ueDate']
-        euType = request.json['euType']
+        ueType = request.json['ueType']
         ueAmount = request.json['ueAmount']
-        newUserExercise = (exID, userEmail,ueDate,euType,ueAmount)
+
+        newUserExercise = UserExercise(None,exID, userEmail,ueDate,ueType,ueAmount)
 
         if newUserExercise.create() == True:
             serialized_items = {"Database Operation": True}

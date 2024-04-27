@@ -27,3 +27,9 @@ class User:
         if(DBAction("EXEC spUserUpdate @Email='"+userEmail+"', @First='"+ userFirstName +"', @Last='" + userLastName+"', @DOB='" + userDOB+"', @Phone ='"+ userPhone+"', @sex='"+ userSex + "'")== False):
             return False
         return True
+
+    def updateProgram(self, prgmID):
+        self.prgmID = prgmID;
+        if DBAction("EXEC spSetUserProgram @Email = '" + self.userEmail + "', @ID = '" + str(self.prgmID) + "' ") == True:
+            return True
+        return False
