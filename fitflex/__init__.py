@@ -12,14 +12,12 @@ from fitflex.UserExercise import UserExercise
 from fitflex.UserWeight import UserWeight
 from fitflex.DBConnect import DBQuery
 
-
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
 CORS(app) # Enable CORS for all routes
 
 @app.route('/')
 
 def index():
-   print('Request for index page received')
    return render_template('index.html')
 
 # Validated - API call for the logging in the user. 
@@ -413,18 +411,17 @@ def getUserWeights():
         finaloutput=finaloutput[0:len(finaloutput)]+"]"
         print(finaloutput)
 
-# TODO - API call to update user weight.
-# Stored Procedure Name: "spWeightUpdate"
-@app.route('/api/updateuserweight', methods=['POST'])
-def updateUserWeight():
+# Validated - API call to Create user weight.
+@app.route('/api/createuserweight', methods=['POST'])
+def createUserWeight():
     try:
-        uwID = request.json['uwID']
+        userEmail = request.json['userEmail']
         uwDate = request.json['uwDate']
         uwWeight = request.json['uwWeight']
         
-        tempUserWeight = UserWeight(None, None, None, None)
+        tempUserWeight = UserWeight(None, userEmail, uwDate, uwWeight)
         
-        if tempUserWeight.update(uwID,None, uwDate,uwWeight) == True:
+        if tempUserWeight.create() == True:
             serialized_items = {"Database Operation": True}
         else:
             serialized_items = {"Database Operation": False}
@@ -435,8 +432,29 @@ def updateUserWeight():
         serialized_items = {"Database Operation": False, "Error Message":str(e)}
         return jsonify(serialized_items)
 
+# Validated - API call to update user weight.
+# Stored Procedure Name: "spWeightUpdate"
+@app.route('/api/updateuserweight', methods=['POST'])
+def updateUserWeight():
+    try:
+        uwID = request.json['uwID']
+        uwDate = request.json['uwDate']
+        uwWeight = request.json['uwWeight']
+        
+        tempUserWeight = UserWeight(None, None, None, None)
+        
+        if tempUserWeight.update(uwID, uwDate,uwWeight) == True:
+            serialized_items = {"Database Operation": True}
+        else:
+            serialized_items = {"Database Operation": False}
+              
+        return jsonify(serialized_items)
 
-# TODO - API call to delete user weight.
+    except Exception as e:
+        serialized_items = {"Database Operation": False, "Error Message":str(e)}
+        return jsonify(serialized_items)
+
+# Validated - API call to delete user weight.
 # Stored Procedure Name: "spWeightDelete"
 @app.route('/api/deleteuserweight', methods=['POST'])
 def deleteUserWeight():
