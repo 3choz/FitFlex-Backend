@@ -303,16 +303,30 @@ def getUser():
             for x in mylist:
                 program = x.split(", ")
                 try:
-                    finaloutput = finaloutput + '{"userEmail": "' + program[0][2:len(program[0])-1] + '",'
-                    finaloutput = finaloutput + '"passID": ' + program[1] + ','
-                    finaloutput = finaloutput + '"prgmID": ' + program[2] + ','
-                    finaloutput = finaloutput + '"userFirstName": "' + program[3][1:len(program[3])-1] + '",'
-                    finaloutput = finaloutput + '"userLastName": "' + program[4][1:len(program[4])-1] + '",'
-                    finaloutput = finaloutput + '"UserDOB": "' + program[5][14:]
-                    finaloutput = finaloutput + '/' + program[6]
-                    finaloutput = finaloutput + '/' + program[7][0:len(program[7])-1] + '",'
-                    finaloutput = finaloutput + '"userPhone": "' + program[8][1:len(program[8])-1] + '",'
-                    finaloutput = finaloutput + '"userSex": "' + program[9][1:len(program[9])-2] +'"}'
+                    if len(program) == 9:
+                        # The user has no program assigned
+                        finaloutput = finaloutput + '{"userEmail": "' + program[0][2:len(program[0])-1] + '",'
+                        finaloutput = finaloutput + '"passID": ' + program[1] + ','
+                        finaloutput = finaloutput + '"prgmID": ' + 0 + ','
+                        finaloutput = finaloutput + '"userFirstName": "' + program[2][1:len(program[3])-1] + '",'
+                        finaloutput = finaloutput + '"userLastName": "' + program[3][1:len(program[4])-1] + '",'
+                        finaloutput = finaloutput + '"UserDOB": "' + program[4][14:]
+                        finaloutput = finaloutput + '/' + program[5]
+                        finaloutput = finaloutput + '/' + program[6][0:len(program[7])-1] + '",'
+                        finaloutput = finaloutput + '"userPhone": "' + program[7][1:len(program[8])-1] + '",'
+                        finaloutput = finaloutput + '"userSex": "' + program[8][1:len(program[9])-2] +'"}'
+                    else:
+                        # The user has a program assigned 
+                        finaloutput = finaloutput + '{"userEmail": "' + program[0][2:len(program[0])-1] + '",'
+                        finaloutput = finaloutput + '"passID": ' + program[1] + ','
+                        finaloutput = finaloutput + '"prgmID": ' + program[2] + ','
+                        finaloutput = finaloutput + '"userFirstName": "' + program[3][1:len(program[3])-1] + '",'
+                        finaloutput = finaloutput + '"userLastName": "' + program[4][1:len(program[4])-1] + '",'
+                        finaloutput = finaloutput + '"UserDOB": "' + program[5][14:]
+                        finaloutput = finaloutput + '/' + program[6]
+                        finaloutput = finaloutput + '/' + program[7][0:len(program[7])-1] + '",'
+                        finaloutput = finaloutput + '"userPhone": "' + program[8][1:len(program[8])-1] + '",'
+                        finaloutput = finaloutput + '"userSex": "' + program[9][1:len(program[9])-2] +'"}'
                 
                 except Exception as e:
                     serialized_items = {"Database Operation": False,"Error Message":str(e)}
@@ -325,6 +339,7 @@ def getUser():
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+
 
 # API call for the updating user. It will be used under the account page.
 @app.route('/api/UpdateUser', methods=['POST'])
