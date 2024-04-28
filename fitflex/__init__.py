@@ -188,19 +188,21 @@ def getUserExercisesByExercise():
         exID = request.json['exID'] 
         mylist = DBQuery("EXEC spGetUserExercises @Email='" + userEmail + "', @ID=" + str(exID))
 
+        if len(mylist) == 0:
+            return jsonify({"Database Operation": False,"Error Message":"No records found"})
+        
         finaloutput="["
-        if len(mylist) > 0:
-            for x in mylist:
-                program = x.split(", ")
+        for x in mylist:
+            program = x.split(", ")
 
-                try:
-                    finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
-                except Exception as e:
-                    serialized_items = {"Database Operation": False,"Error Message":str(e)}
-                    return jsonify(serialized_items)
-            finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
+            try:
+                finaloutput = finaloutput + '{"ueID": ' + program[0][1:] + ', "exID": ' + program[1]+', "userEmail": "' + program[2][1: len(program[2])-1] + '", "ueDate": "' + program[3][14: ] +"/"+program[4]+ "/" + program[5][0:len(program[5])-1] + '", "ueType": "' + program[6][1: len(program[6])-1] + '", "ueAmount": ' + program[7][9: len(program[7])-3] +'},'
+            except Exception as e:
+                serialized_items = {"Database Operation": False,"Error Message":str(e)}
+                return jsonify(serialized_items)
+        finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
 
-            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+        return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
