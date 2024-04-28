@@ -124,7 +124,7 @@ def updateProgram():
         return jsonify(serialized_items) 
 
 # Validated - API call for getting the user's program.
-@app.route('/api/getprogram', methods=['GET'])
+@app.route('/api/getprogram', methods=['POST'])
 def getProgram():
     try:
         userEmail = request.json['userEmail'] 
