@@ -24,7 +24,6 @@ def DBAction(SQLStatement):
             cursor = conn.cursor()
             cursor.execute(SQLStatement)
             cursor.commit()
-
             break
         except:
             print('Failed Attempt')

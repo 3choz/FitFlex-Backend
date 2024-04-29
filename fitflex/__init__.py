@@ -1,3 +1,5 @@
+# Python file responsible for all API calls.
+
 from ast import Delete
 import os
 import json
@@ -12,20 +14,27 @@ from fitflex.UserExercise import UserExercise
 from fitflex.UserWeight import UserWeight
 from fitflex.DBConnect import DBQuery
 
+# Define Flask application.
 app = Flask(__name__, template_folder = os.path.abspath("./templates"), static_folder=os.path.abspath("./static"))
-CORS(app) # Enable CORS for all routes
+
+# Enable CORS for all routes.
+CORS(app) 
 
 @app.route('/')
 
+# Default home page.
 def index():
    return render_template('index.html')
 
-# Validated - API call for the logging in the user. 
+# API call for the logging in the user. 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']    
         userPassword = request.json['userPassword']
+
+        # Attempt to login.
         tempPass = Password()
         serialized_items=""
     
@@ -38,10 +47,11 @@ def login():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
     return jsonify(serialized_items)
 
-# Validated - API call for creating a user. This will be called under the create account page.
+# API call for creating a user. This will be called under the create account page.
 @app.route('/api/createuser', methods=['POST'])
 def createUser():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         userPassword = request.json['userPassword'] # This needs to be updated as this is in cleartext. BAD
         userFirstName = request.json['userFirstName']
@@ -49,6 +59,8 @@ def createUser():
         userDOB = request.json['userDOB']
         userPhone = request.json['userPhone']
         userSex = request.json['userSex']
+
+        # Attempt to create user.
         passCreation = Password()
         userPassID = passCreation.create(userPassword)
         newUser = User(userEmail,userPassID,None,userFirstName,userLastName,userDOB,userPhone,userSex)
@@ -63,9 +75,10 @@ def createUser():
 
     return jsonify(serialized_items) 
 
-# Validated - Used for getting all Programs for program selection
+# Used for getting all Programs for program selection.
 @app.route('/api/getprograms', methods=['GET'])
 def getPrograms():
+    # Attempt to get all programs.
     try:
         mylist = DBQuery("EXEC spGetPrograms")
         finaloutput="["
@@ -80,12 +93,15 @@ def getPrograms():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API Call for getting all Programs by difficulty for program selection
+# API Call for getting all Programs by difficulty for program selection.
 @app.route('/api/getprogramsbydifficulty', methods=['POST'])
 def getProgramsByDifficulty():
     try:
+        # Parameters.
         prgmDifficulty = request.json['prgmDifficulty']
 
+
+        # Attempt to get programs.
         mylist = DBQuery("EXEC spGetProgramByDifficulty @Difficulty='" + prgmDifficulty + "'")
         finaloutput="["
         if len(mylist) > 0:
@@ -98,19 +114,21 @@ def getProgramsByDifficulty():
                     return jsonify(serialized_items)
             finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
 
-            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+            return jsonify(json.loads(finaloutput))
 
     except Exception as e:
         serialized_items = {"Database Operation": False, "Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for updating the user's program.
+# API call for updating the user's program.
 @app.route('/api/updateprogram', methods=['POST'])
 def updateProgram():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         prgmID = request.json['prgmID']
 
+        # Attempt to update user's program
         tempUser = User(userEmail,None, None, None, None, None, None, None)
 
         if tempUser.updateProgram(prgmID):
@@ -123,12 +141,14 @@ def updateProgram():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for getting the user's program.
+# API call for getting the user's program.
 @app.route('/api/getprogram', methods=['POST'])
 def getProgram():
     try:
+        # Parameters.
         userEmail = request.json['userEmail'] 
 
+        # Attempt to get user's program
         mylist = DBQuery("EXEC spGetProgram @Email='" + userEmail + "'")
         finaloutput="["
         if len(mylist) > 0:
@@ -147,11 +167,14 @@ def getProgram():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for getting all exercises relating to user's program.
+# API call for getting all exercises relating to user's program.
 @app.route('/api/getusersexercises', methods=['POST'])
 def getUserExercise():
     try:
+        # Parameters.
         userEmail = request.json['userEmail'] 
+
+        # Attempt to get all exercises relating to user
         mylist = DBQuery("EXEC spGetExerciseByUserProgram @Email='" + userEmail + "'")
 
         finaloutput="["
@@ -174,18 +197,21 @@ def getUserExercise():
 
             finaloutput=finaloutput[0:len(finaloutput)-1]+"]"
             print(finaloutput)
-            return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+            return jsonify(json.loads(finaloutput))
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for getting all exercises relating to user's program.
+# API call for getting all exercises relating to user's program.
 @app.route('/api/getuserexercisesbyexercise', methods=['POST'])
 def getUserExercisesByExercise():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         exID = request.json['exID'] 
+
+        # SQL Operation Attempt.
         mylist = DBQuery("EXEC spGetUserExercises @Email='" + userEmail + "', @ID=" + str(exID))
 
         if len(mylist) == 0:
@@ -207,11 +233,14 @@ def getUserExercisesByExercise():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for get record relating to a user's specific exercise.
+# API call for get record relating to a user's specific exercise.
 @app.route('/api/getuserexercise', methods=['POST'])
 def getUserExercises():
     try:
+        # Parameters.
         ueID = request.json['ueID'] 
+
+        # SQL Operation Attempt.
         mylist = DBQuery("EXEC spgetuserexercise @ID=" + str(ueID))
         finaloutput="["
         if len(mylist) > 0:
@@ -230,16 +259,18 @@ def getUserExercises():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call for creating a user's exercise record.
+# API call for creating a user's exercise record.
 @app.route('/api/createuserexercise', methods=['POST'])
 def createUserExercise():
     try:
+        # Parameters.
         exID = request.json['exID']
         userEmail = request.json['userEmail']
         ueDate = request.json['ueDate']
         ueType = request.json['ueType']
         ueAmount = request.json['ueAmount']
 
+        # SQL Operation Attempt.
         newUserExercise = UserExercise(None,exID, userEmail,ueDate,ueType,ueAmount)
 
         if newUserExercise.create() == True:
@@ -252,15 +283,17 @@ def createUserExercise():
 
     return jsonify(serialized_items)
 
-# Validated - API call for updating a user's exercise record.
+# API call for updating a user's exercise record.
 @app.route('/api/updateuserexercise', methods=['POST'])
 def updateUserExercise():
     try:
+        # Parameters.
         ueID = request.json['ueID']
         ueDate = request.json['ueDate']
         ueType = request.json['ueType']
         ueAmount = request.json['ueAmount']
         
+        # SQL Operation Attempt.
         tempUserExcercise = UserExercise(ueID, None, None, None, None, None)
 
         if tempUserExcercise.update(ueDate,ueType,ueAmount):
@@ -271,14 +304,16 @@ def updateUserExercise():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# Validated - API call for deleting a user's exercise record.
+# API call for deleting a user's exercise record.
 @app.route('/api/deleteuserexercise', methods=['POST'])
 def deleteUserExercise():
     try:
+        # Parameters.
         ueID = request.json['ueID']
 
+        # SQL Operation Attempt.
         tempUserExcercise = UserExercise(ueID, None, None, None, None, None)
 
         if tempUserExcercise.delete() == True:
@@ -289,22 +324,25 @@ def deleteUserExercise():
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# Validated - API call to get user data for profile page for viewing and updating
+# API call to get user data for profile page for viewing and updating.
 @app.route('/api/getuser', methods=['POST'])
 def getUser():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         mylist = DBQuery("EXEC spGetUser @Email='" + userEmail + "'")
         finaloutput="{"
+
+        # SQL Operation Attempt.
         if len(mylist) > 0:
             for x in mylist:
                 program = x.split(", ")
                 try:
                     finaloutput = finaloutput + f'"userEmail": "{program[0][2:len(program[0])-1]}",'
                     finaloutput = finaloutput + f'"passID": {program[1]},'
-                    finaloutput = finaloutput + f'"prgmID": {program[2]},' # Causes an error when a program is not assigned to a user
+                    finaloutput = finaloutput + f'"prgmID": {program[2]},'
                     finaloutput = finaloutput + f'"userFirstName": "{program[3][1:len(program[3])-1]}",'
                     finaloutput = finaloutput + f'"userLastName": "{program[4][1:len(program[4])-1]}",'
                     finaloutput = finaloutput + f'"UserDOB": "{program[5][14:]}/{program[6]}/{program[7][0:len(program[7])-1]}",'
@@ -316,22 +354,25 @@ def getUser():
 
             finaloutput = finaloutput + "}"
 
-        return jsonify(json.loads(finaloutput)) # Send as a JSON so the frontend can consume it.
+        return jsonify(json.loads(finaloutput))
 
     except Exception as e:
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
-        return jsonify(serialized_items) # Send as a JSON so the frontend can consume it
+        return jsonify(serialized_items) 
 
-# Validated - API call for the updating user. It will be used under the account page.
+# API call for the updating user. It will be used under the account page.
 @app.route('/api/updateuser', methods=['POST'])
 def UpdateUser():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         userFirstName = request.json['userFirstName']
         userLastName = request.json['userLastName']
         userDOB = request.json['userDOB']
         userPhone = request.json['userPhone']
         userSex = request.json['userSex']
+
+        # SQL Operation Attempt.
         updateUser = User(None,None,None,None,None,None,None,None)
         
         if updateUser.update(userEmail,userFirstName,userLastName,userDOB,userPhone,userSex) == True:
@@ -342,14 +383,16 @@ def UpdateUser():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
     return jsonify(serialized_items)
 
-# Validated - API call to update password for the user.
+# API call to update password for the user.
 @app.route('/api/updatepassword', methods=['POST'])
 def updatePassword():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']    
         userPassword = request.json['userPassword']
         userNewPassword = request.json['userNewPassword']
 
+        # SQL Operation Attempt.
         tempPass = Password()
 
         if(tempPass.login(userEmail,userPassword) == True):
@@ -361,13 +404,15 @@ def updatePassword():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items)
 
-# Validated - API call to view user weight.
+# API call to view user weight.
 @app.route('/api/getuserweight', methods=['POST'])
 def getUserWeight():
 
     try:
-
+        # Parameters.
         uwID = request.json['uwID']
+
+        # SQL Operation Attempt.
         mylist=DBQuery("EXEC spGetweight @ID='" + str(uwID) + "'")
         finaloutput="["
         for x in mylist:
@@ -386,13 +431,14 @@ def getUserWeight():
         serialized_items = {"Database Operation": False,"Error Message":str(e)}
         return jsonify(serialized_items) 
 
-# Validated - API call to view user weights.
+# API call to view user weights.
 @app.route('/api/getuserweights', methods=['POST'])
 def getUserWeights():
     try:
-
-
+        # Parameters.
         userEmail = request.json['userEmail']
+
+
         mylist = DBQuery("EXEC spGetWeights @Email='" + userEmail + "'")
         finaloutput="["
         for x in mylist:
@@ -415,10 +461,12 @@ def getUserWeights():
 @app.route('/api/createuserweight', methods=['POST'])
 def createUserWeight():
     try:
+        # Parameters.
         userEmail = request.json['userEmail']
         uwDate = request.json['uwDate']
         uwWeight = request.json['uwWeight']
         
+        # SQL Operation Attempt.
         tempUserWeight = UserWeight(None, userEmail, uwDate, uwWeight)
         
         if tempUserWeight.create() == True:
@@ -433,14 +481,15 @@ def createUserWeight():
         return jsonify(serialized_items)
 
 # Validated - API call to update user weight.
-# Stored Procedure Name: "spWeightUpdate"
 @app.route('/api/updateuserweight', methods=['POST'])
 def updateUserWeight():
     try:
+        # Parameters.
         uwID = request.json['uwID']
         uwDate = request.json['uwDate']
         uwWeight = request.json['uwWeight']
         
+        # SQL Operation Attempt.
         tempUserWeight = UserWeight(None, None, None, None)
         
         if tempUserWeight.update(uwID, uwDate,uwWeight) == True:
@@ -455,11 +504,13 @@ def updateUserWeight():
         return jsonify(serialized_items)
 
 # Validated - API call to delete user weight.
-# Stored Procedure Name: "spWeightDelete"
 @app.route('/api/deleteuserweight', methods=['POST'])
 def deleteUserWeight():
     try:
+        # Parameters.
         uwID = request.json['uwID']
+
+        # SQL Operation Attempt.
         tempUserWeight = UserWeight(uwID, None, None, None)
         if tempUserWeight.delete() == True:
             serialized_items = {"Database Operation": True}

@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
+    "\\fitflex",
+    "\\fitflex-SQL",
     "\\fitflex-SQL\\Stored Procedures",
     "\\fitflex-SQL\\Tables"
   ],
+  "SelectedNode": "\\fitflex-SQL\\Tables\\tblUserWeight.sql",
   "PreviewInSolutionExplorer": false
 }
