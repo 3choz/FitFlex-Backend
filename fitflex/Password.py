@@ -7,6 +7,9 @@ import random
 from fitflex.DBConnect import DBAction,DBQuery
 
 class Password:
+    
+    def hash_password(self, password, salt):
+        return hashlib.sha256((password + salt).encode("utf-8")).hexdigest()
 
     # Returns True or False.
     def login(self, email, password):
@@ -21,7 +24,7 @@ class Password:
                 tempsalt = output[1]
 
                 # Generate password.
-                generatedPassword = hashlib.sha256((password+tempsalt).encode("utf-8")).hexdigest()
+                generatedPassword = self.hash_password(password, tempsalt)
 
                 #Compare passwords.
                 if temphash == generatedPassword:
@@ -37,10 +40,10 @@ class Password:
         # Create Salt.
         salt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
         # Create Hash.
-        passhash = hashlib.sha256((password+salt).encode("utf-8"))
-        DBAction("EXEC spPasswordInsert @Salt='"+ salt +"', @Hash='"+ passhash.hexdigest() + "'")
+        passhash = self.hash_password(password, salt)
+        DBAction("EXEC spPasswordInsert @Salt='"+ salt +"', @Hash='"+ passhash + "'")
 
-        tempstr = DBQuery("select passID from tblPassword where passSalt = '"+ salt +"' and passHash='"+ passhash.hexdigest() +"'")[0]
+        tempstr = DBQuery("select passID from tblPassword where passSalt = '"+ salt +"' and passHash='"+ passhash +"'")[0]
         passid = int(tempstr[1:len(tempstr)-2])
         return passid
 
@@ -56,10 +59,10 @@ class Password:
 
             # Check if the current password matches the provided currentPassword.
             # Negating to do a test password update.
-            if not (hashlib.sha256((currentPassword + tempSalt).encode("utf-8")).hexdigest() == tempHash):
+            if self.hash_password(currentPassword, tempSalt) == tempHash:
                 # Generate new salt and hash for the newPassword.
                 newSalt = ''.join(random.choices(string.ascii_uppercase + string.digits, k=25))
-                newHash = hashlib.sha256((newPassword + newSalt).encode("utf-8")).hexdigest()
+                newHash = self.hash_password(newPassword, newSalt)
 
                 # Update the password in the database with the new salt and hash.
                 DBAction("EXEC spPasswordUpdate @Email='" + userEmail + "', @Salt='" + newSalt + "', @Hash='" + newHash + "'")
