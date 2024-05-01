@@ -30,6 +30,6 @@ class UserExercise:
 
     # Delete record in the database.
     def delete(self):
-        #if(DBAction("Exec spExerciseDelete @ID='"+ str(self.ueID) +"'")):
-        return True
-        #return False
+        if (DBAction("Exec spExerciseDelete @ID='"+ str(self.ueID) +"'")):
+            return True
+        return False
